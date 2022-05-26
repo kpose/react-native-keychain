@@ -10,16 +10,21 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 
+import android.hardware.fingerprint.FingerprintManager;
+
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS;
 
 /**
- * @see <a href="https://stackoverflow.com/questions/50968732/determine-if-biometric-hardware-is-present-and-the-user-has-enrolled-biometrics">Biometric hradware</a>
+ * @see <a href=
+ *      "https://stackoverflow.com/questions/50968732/determine-if-biometric-hardware-is-present-and-the-user-has-enrolled-biometrics">Biometric
+ *      hradware</a>
  */
-@SuppressWarnings({"WeakerAccess", "deprecation"})
+@SuppressWarnings({ "WeakerAccess", "deprecation" })
 public class DeviceAvailability {
   public static boolean isStrongBiometricAuthAvailable(@NonNull final Context context) {
-    return BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BIOMETRIC_SUCCESS;
+    FingerprintManager fingerprintManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
+    return fingerprintManager.isHardwareDetected() && fingerprintManager.hasEnrolledFingerprints();
   }
 
   public static boolean isFingerprintAuthAvailable(@NonNull final Context context) {
@@ -30,9 +35,9 @@ public class DeviceAvailability {
     return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_FACE);
   }
 
-    public static boolean isIrisAuthAvailable(@NonNull final Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_IRIS);
-    }
+  public static boolean isIrisAuthAvailable(@NonNull final Context context) {
+    return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_IRIS);
+  }
 
   /** Check is permissions granted for biometric things. */
   public static boolean isPermissionsGranted(@NonNull final Context context) {
@@ -41,9 +46,9 @@ public class DeviceAvailability {
       return false;
     }
 
-    final KeyguardManager km =
-      (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-    if( !km.isKeyguardSecure() ) return false;
+    final KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+    if (!km.isKeyguardSecure())
+      return false;
 
     // api28+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
